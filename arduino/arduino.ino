@@ -1,29 +1,32 @@
-#define echoPin 2
-#define trigPin 3
+const int led = 13;    
+const int sensor = 2;  
 
-long duration;
-float distance;
+int state = LOW; // Previous state
+int val = 0;     // Current read
 
 void setup() {
-    pinMode(trigPin, OUTPUT);
-    pinMode(echoPin, INPUT);
-    Serial.begin(9600);
-    Serial.println("Distance measurement using Arduino Uno.");
-    delay(500);
+  pinMode(led, OUTPUT);
+  pinMode(sensor, INPUT);
+  Serial.begin(9600);
+
+  Serial.println("Calibrating sensor...");
+  delay(10000); // 10 seconds for sensor to stabilize
+  Serial.println("Sensor ready.");
 }
 
 void loop() {
-    digitalWrite(trigPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
+  val = digitalRead(sensor);
 
-    duration = pulseIn(echoPin, HIGH);
-    distance = duration * 0.0344 / 2;
+  if (val == HIGH && state == LOW) {
+    digitalWrite(led, HIGH);
+    Serial.println("Motion detected");
+    state = HIGH;
+  } 
+  else if (val == LOW && state == HIGH) {
+    digitalWrite(led, LOW);
+    Serial.println("Motion stopped");
+    state = LOW;
+  }
 
-    Serial.print("Distance: ");
-    Serial.print(distance);
-    Serial.println(" cm");
-    delay(100);
+  delay(100); // Prevent spamming
 }
